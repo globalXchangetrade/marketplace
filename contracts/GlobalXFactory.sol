@@ -7,6 +7,8 @@ contract GlobalXFactory is IGlobalXFactory {
     address public feeTo;
     address public feeToSetter;
 
+    bytes32 public constant INIT_CODE_HASH = keccak256(abi.encodePacked(type(GlobalXPair).creationCode));
+
     mapping(address => mapping(address => address)) public getPair;
     address[] public allPairs;
 
@@ -25,7 +27,7 @@ contract GlobalXFactory is IGlobalXFactory {
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
         require(token0 != address(0), 'GlobalX: ZERO_ADDRESS');
         require(getPair[token0][token1] == address(0), 'GlobalX: PAIR_EXISTS'); // single check is sufficient
-        bytes memory bytecode = type(UniswapV2Pair).creationCode;
+        bytes memory bytecode = type(GlobalXPair).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
         assembly {
             pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
